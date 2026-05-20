@@ -7,7 +7,6 @@ build/
 ### IntelliJ IDEA ###
 .idea/
 *.iml
-out/
 target/
 *.iws
 *.iml

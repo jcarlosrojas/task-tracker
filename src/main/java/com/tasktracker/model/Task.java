@@ -13,6 +13,7 @@ public class Task {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    // New task
     public Task(int id, String description) {
         this.id = id;
         this.description = description;
@@ -21,6 +22,7 @@ public class Task {
         this.updatedAt = LocalDateTime.now();
     }
 
+    //Existing Task
     public Task(int id, String description, TaskStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.description = description;

@@ -1,0 +1,194 @@
+package com.tasktracker.cli;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class CommandParserTest {
+
+    private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    private PrintStream originalOut;
+    private CommandParser parser;
+
+    @BeforeEach
+    void setUp() {
+        originalOut = System.out;
+        System.setOut(new PrintStream(outputStream, true, StandardCharsets.UTF_8));
+        parser = new CommandParser();
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.setOut(originalOut);
+    }
+
+    @Test
+    void parsePrintsHelpWhenNoArgumentsAreProvided() {
+        parser.parse(new String[] {});
+
+        assertOutput(
+                """
+                Available commands:
+                  add "task description"
+                  update <id> "new description"
+                  delete <id>
+                  list
+                """);
+    }
+
+    @Test
+    void parsePrintsUnknownCommandAndHelpForUnsupportedCommand() {
+        parser.parse(new String[] {"complete", "1"});
+
+        assertOutput(
+                """
+                Unknown command: complete
+                Available commands:
+                  add "task description"
+                  update <id> "new description"
+                  delete <id>
+                  list
+                """);
+    }
+
+    @Test
+    void parseTreatsCommandNamesCaseInsensitively() {
+        parser.parse(new String[] {"ADD", "Write tests"});
+
+        assertOutput("Adding task: Write tests%n");
+    }
+
+    @Test
+    void parseThrowsWhenArgumentsArrayIsNull() {
+        assertThrows(NullPointerException.class, () -> parser.parse(null));
+    }
+
+    @Test
+    void addPrintsUsageWhenDescriptionIsMissing() {
+        parser.parse(new String[] {"add"});
+
+        assertOutput("Usage: add \"task description\"%n");
+    }
+
+    @Test
+    void addPrintsDescriptionWhenProvided() {
+        parser.parse(new String[] {"add", "Buy milk"});
+
+        assertOutput("Adding task: Buy milk%n");
+    }
+
+    @Test
+    void addUsesFirstDescriptionArgumentWhenExtraArgumentsAreProvided() {
+        parser.parse(new String[] {"add", "Buy milk", "ignored"});
+
+        assertOutput("Adding task: Buy milk%n");
+    }
+
+    @Test
+    void addAcceptsBlankDescription() {
+        parser.parse(new String[] {"add", ""});
+
+        assertOutput("Adding task: %n");
+    }
+
+    @Test
+    void updatePrintsUsageWhenIdAndDescriptionAreMissing() {
+        parser.parse(new String[] {"update"});
+
+        assertOutput("Usage: update <id> \"new description\"%n");
+    }
+
+    @Test
+    void updatePrintsUsageWhenDescriptionIsMissing() {
+        parser.parse(new String[] {"update", "1"});
+
+        assertOutput("Usage: update <id> \"new description\"%n");
+    }
+
+    @Test
+    void updatePrintsInvalidTaskIdWhenIdIsNotANumber() {
+        parser.parse(new String[] {"update", "abc", "New description"});
+
+        assertOutput("Invalid task id: abc%n");
+    }
+
+    @Test
+    void updatePrintsIdAndDescriptionWhenProvided() {
+        parser.parse(new String[] {"update", "12", "New description"});
+
+        assertOutput("Updating task 12: New description%n");
+    }
+
+    @Test
+    void updateAcceptsNegativeId() {
+        parser.parse(new String[] {"update", "-1", "New description"});
+
+        assertOutput("Updating task -1: New description%n");
+    }
+
+    @Test
+    void updateUsesFirstDescriptionArgumentWhenExtraArgumentsAreProvided() {
+        parser.parse(new String[] {"update", "12", "New description", "ignored"});
+
+        assertOutput("Updating task 12: New description%n");
+    }
+
+    @Test
+    void deletePrintsUsageWhenIdIsMissing() {
+        parser.parse(new String[] {"delete"});
+
+        assertOutput("Usage: delete <id>%n");
+    }
+
+    @Test
+    void deletePrintsInvalidTaskIdWhenIdIsNotANumber() {
+        parser.parse(new String[] {"delete", "abc"});
+
+        assertOutput("Invalid task id: abc%n");
+    }
+
+    @Test
+    void deletePrintsIdWhenProvided() {
+        parser.parse(new String[] {"delete", "8"});
+
+        assertOutput("Deleting task: 8%n");
+    }
+
+    @Test
+    void deleteAcceptsNegativeId() {
+        parser.parse(new String[] {"delete", "-8"});
+
+        assertOutput("Deleting task: -8%n");
+    }
+
+    @Test
+    void deleteIgnoresExtraArguments() {
+        parser.parse(new String[] {"delete", "8", "ignored"});
+
+        assertOutput("Deleting task: 8%n");
+    }
+
+    @Test
+    void listPrintsListingMessage() {
+        parser.parse(new String[] {"list"});
+
+        assertOutput("Listing tasks%n");
+    }
+
+    @Test
+    void listIgnoresExtraArguments() {
+        parser.parse(new String[] {"list", "done"});
+
+        assertOutput("Listing tasks%n");
+    }
+
+    private void assertOutput(String expected) {
+        assertEquals(String.format(expected), outputStream.toString(StandardCharsets.UTF_8));
+    }
+}

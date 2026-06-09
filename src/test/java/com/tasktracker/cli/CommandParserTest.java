@@ -84,17 +84,17 @@ class CommandParserTest {
     }
 
     @Test
-    void addUsesFirstDescriptionArgumentWhenExtraArgumentsAreProvided() {
+    void addPrintsUsageWhenExtraArgumentsAreProvided() {
         parser.parse(new String[] {"add", "Buy milk", "ignored"});
 
-        assertOutput("Adding task: Buy milk%n");
+        assertOutput("Usage: add \"task description\"%n");
     }
 
     @Test
-    void addAcceptsBlankDescription() {
+    void addPrintsUsageWhenDescriptionIsBlank() {
         parser.parse(new String[] {"add", ""});
 
-        assertOutput("Adding task: %n");
+        assertOutput("Usage: add \"task description\"%n");
     }
 
     @Test
@@ -114,7 +114,6 @@ class CommandParserTest {
     @Test
     void updatePrintsInvalidTaskIdWhenIdIsNotANumber() {
         parser.parse(new String[] {"update", "abc", "New description"});
-
         assertOutput("Invalid task id: abc%n");
     }
 
@@ -126,17 +125,17 @@ class CommandParserTest {
     }
 
     @Test
-    void updateAcceptsNegativeId() {
+    void updatePrintsInvalidTaskIdWhenIdIsNegative() {
         parser.parse(new String[] {"update", "-1", "New description"});
 
-        assertOutput("Updating task -1: New description%n");
+        assertOutput("Invalid task id: -1%n");
     }
 
     @Test
-    void updateUsesFirstDescriptionArgumentWhenExtraArgumentsAreProvided() {
+    void updatePrintsUsageWhenExtraArgumentsAreProvided() {
         parser.parse(new String[] {"update", "12", "New description", "ignored"});
 
-        assertOutput("Updating task 12: New description%n");
+        assertOutput("Usage: update <id> \"new description\"%n");
     }
 
     @Test
@@ -161,17 +160,17 @@ class CommandParserTest {
     }
 
     @Test
-    void deleteAcceptsNegativeId() {
+    void deletePrintsInvalidTaskIdWhenIdIsNegative() {
         parser.parse(new String[] {"delete", "-8"});
 
-        assertOutput("Deleting task: -8%n");
+        assertOutput("Invalid task id: -8%n");
     }
 
     @Test
-    void deleteIgnoresExtraArguments() {
+    void deletePrintsUsageWhenExtraArgumentsAreProvided() {
         parser.parse(new String[] {"delete", "8", "ignored"});
 
-        assertOutput("Deleting task: 8%n");
+        assertOutput("Usage: delete <id>%n");
     }
 
     @Test
@@ -182,10 +181,10 @@ class CommandParserTest {
     }
 
     @Test
-    void listIgnoresExtraArguments() {
+    void listPrintsUsageWhenExtraArgumentsAreProvided() {
         parser.parse(new String[] {"list", "done"});
 
-        assertOutput("Listing tasks%n");
+        assertOutput("Usage: list%n");
     }
 
     private void assertOutput(String expected) {

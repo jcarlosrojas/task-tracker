@@ -1,15 +1,19 @@
 package com.tasktracker.cli;
 
+import java.util.Locale;
+import java.util.Objects;
+
 public class CommandParser {
 
     public void parse(String[] args) {
-        // validate empty input
+        Objects.requireNonNull(args, "args is null");
+
         if (args.length == 0) {
             printHelp();
             return;
         }
 
-        String command = args[0].toLowerCase();
+        String command = args[0].toLowerCase(Locale.ROOT);
 
         switch (command) {
             case "add":
@@ -31,12 +35,16 @@ public class CommandParser {
     }
 
     private void handleAdd(String[] args) {
-        if (args.length < 2) {
+        if (args.length != 2) {
             System.out.println("Usage: add \"task description\"");
             return;
         }
 
-        String description = args[1];
+        String description = args[1].trim();
+        if (description.isEmpty()) {
+            System.out.println("Usage: add \"task description\"");
+            return;
+        }
         System.out.println("Adding task: " + description);
 
         // Later:
@@ -44,7 +52,7 @@ public class CommandParser {
     }
 
     private void handleUpdate(String[] args) {
-        if (args.length < 3) {
+        if (args.length != 3) {
             System.out.println("Usage: update <id> \"new description\"");
             return;
         }
@@ -54,7 +62,11 @@ public class CommandParser {
             return;
         }
 
-        String description = args[2];
+        String description = args[2].trim();
+        if (description.isEmpty()) {
+            System.out.println("Usage: update <id> \"new description\"");
+            return;
+        }
         System.out.println("Updating task " + id + ": " + description);
 
         // Later:
@@ -62,7 +74,7 @@ public class CommandParser {
     }
 
     private void handleDelete(String[] args) {
-        if (args.length < 2) {
+        if (args.length != 2) {
             System.out.println("Usage: delete <id>");
             return;
         }
@@ -79,15 +91,24 @@ public class CommandParser {
     }
 
     private void handleList(String[] args) {
-        System.out.println("Listing tasks");
+        if (args.length != 1) {
+            System.out.println("Usage: list");
+            return;
+        }
 
+        System.out.println("Listing tasks");
         // Later:
         // taskService.list();
     }
 
     private Integer parseId(String value) {
         try {
-            return Integer.parseInt(value);
+            int id = Integer.parseInt(value);
+            if (id < 1) {
+                System.out.println("Invalid task id: " + value);
+                return null;
+            }
+            return id;
         } catch (NumberFormatException exception) {
             System.out.println("Invalid task id: " + value);
             return null;

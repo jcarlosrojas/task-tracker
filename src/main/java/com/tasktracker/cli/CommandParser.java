@@ -1,9 +1,14 @@
 package com.tasktracker.cli;
 
+import com.tasktracker.model.TaskStatus;
+import com.tasktracker.service.TaskService;
+
 import java.util.Locale;
 import java.util.Objects;
 
 public class CommandParser {
+
+    TaskService taskService = new TaskService();
 
     public void parse(String[] args) {
         Objects.requireNonNull(args, "args is null");
@@ -22,6 +27,8 @@ public class CommandParser {
             case "update":
                 handleUpdate(args);
                 break;
+            case "update-status":
+                handleUpdateStatus(args);
             case "delete":
                 handleDelete(args);
                 break;
@@ -32,6 +39,26 @@ public class CommandParser {
                 System.out.println("Unknown command: " + command);
                 printHelp();
         }
+    }
+
+    private void handleUpdateStatus(String[] args) {
+        if (args.length != 3) {
+            System.out.println("Wrong number of arguments!");
+            return;
+        }
+
+        Integer id = Integer.parseInt(args[1]);
+        if (id == null) {
+            return;
+        }
+
+        TaskStatus status = parseStatus(args[2]);
+        if (status == null) {
+            return;
+        }
+
+        System.out.println("Updating task " + id + " with status " + status);
+        taskService.updateStatus(id, status);
     }
 
     private void handleAdd(String[] args) {
@@ -48,7 +75,7 @@ public class CommandParser {
         System.out.println("Adding task: " + description);
 
         // Later:
-        //taskService.add(description);
+        taskService.add(description);
     }
 
     private void handleUpdate(String[] args) {
@@ -70,7 +97,7 @@ public class CommandParser {
         System.out.println("Updating task " + id + ": " + description);
 
         // Later:
-        // taskService.update(id, description);
+        taskService.update(id, description);
     }
 
     private void handleDelete(String[] args) {
@@ -87,7 +114,7 @@ public class CommandParser {
         System.out.println("Deleting task: " + id);
 
         // Later:
-        // taskService.delete(id);
+        taskService.delete(id);
     }
 
     private void handleList(String[] args) {
@@ -98,7 +125,7 @@ public class CommandParser {
 
         System.out.println("Listing tasks");
         // Later:
-        // taskService.list();
+        taskService.list();
     }
 
     private Integer parseId(String value) {
@@ -121,5 +148,14 @@ public class CommandParser {
         System.out.println("  update <id> \"new description\"");
         System.out.println("  delete <id>");
         System.out.println("  list");
+    }
+
+    private TaskStatus parseStatus(String arg) {
+        try {
+            return TaskStatus.valueOf(arg.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException exception) {
+            System.out.println("Invalid task status: " + arg);
+            return null;
+        }
     }
 }

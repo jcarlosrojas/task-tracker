@@ -122,9 +122,10 @@ class CommandParserTest {
 
     @Test
     void updatePrintsIdAndDescriptionWhenProvided() {
-        parser.parse(new String[] {"update", "12", "New description"});
+        parser.taskService.add("Old description");
+        parser.parse(new String[] {"update", "1", "New description"});
 
-        assertOutput("Updating task 12: New description%n");
+        assertOutput("Updating task 1: New description%n");
     }
 
     @Test

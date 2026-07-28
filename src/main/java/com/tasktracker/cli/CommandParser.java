@@ -75,8 +75,8 @@ public class CommandParser {
         }
         System.out.println("Adding task: " + description);
 
-        // Later:
-        //taskService.add(description);
+
+        taskService.add(description);
     }
 
     private void handleUpdate(String[] args) {
@@ -97,8 +97,7 @@ public class CommandParser {
         }
         System.out.println("Updating task " + id + ": " + description);
 
-        // Later:
-        //taskService.update(id, description);
+        taskService.update(id, description);
     }
 
     private void handleDelete(String[] args) {
@@ -114,8 +113,7 @@ public class CommandParser {
 
         System.out.println("Deleting task: " + id);
 
-        // Later:
-        //taskService.delete(id);
+        taskService.delete(id);
     }
 
     private void handleList(String[] args) {
@@ -125,8 +123,7 @@ public class CommandParser {
         }
 
         System.out.println("Listing tasks");
-        // Later:
-        //taskService.list();
+        taskService.list();
     }
 
     private Integer parseId(String value) {

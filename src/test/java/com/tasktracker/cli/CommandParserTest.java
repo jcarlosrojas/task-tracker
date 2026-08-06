@@ -3,6 +3,9 @@ package com.tasktracker.cli;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.tasktracker.model.Task;
+import com.tasktracker.model.TaskStatus;
+import com.tasktracker.service.TaskService;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -112,6 +115,13 @@ class CommandParserTest {
     }
 
     @Test
+    void updatePrintsUsageWhenDescriptionIsEmpty() {
+        parser.parse(new String[] {"update", "1", ""});
+
+        assertOutput("Usage: update <id> \"new description\"%n");
+    }
+
+    @Test
     void updatePrintsInvalidTaskIdWhenIdIsNotANumber() {
         parser.parse(new String[] {"update", "abc", "New description"});
         assertOutput("Invalid task id: abc%n");
@@ -119,9 +129,10 @@ class CommandParserTest {
 
     @Test
     void updatePrintsIdAndDescriptionWhenProvided() {
-        parser.parse(new String[] {"update", "12", "New description"});
+        parser.taskService.add("Old description");
+        parser.parse(new String[] {"update", "1", "New description"});
 
-        assertOutput("Updating task 12: New description%n");
+        assertOutput("Updating task 1: New description%n");
     }
 
     @Test
@@ -187,7 +198,59 @@ class CommandParserTest {
         assertOutput("Usage: list%n");
     }
 
+    @Test
+    void updateStatusPrintsUsageWhenArgumentsAreMissing() {
+        parser.parse(new String[] {"update-status", "1"});
+
+        assertOutput("Wrong number of arguments!%n");
+    }
+
+    @Test
+    void updateStatusPrintsInvalidTaskIdWhenIdIsNotANumber() {
+        parser.parse(new String[] {"update-status", "abc", "completed"});
+
+        assertOutput("Invalid task id: abc%n");
+    }
+
+    @Test
+    void updateStatusPrintsInvalidTaskIdWhenIdIsNotPositive() {
+        parser.parse(new String[] {"update-status", "0", "completed"});
+
+        assertOutput("Invalid task id: 0%n");
+    }
+
+    @Test
+    void updateStatusPrintsInvalidStatusWhenStatusIsUnknown() {
+        parser.parse(new String[] {"update-status", "1", "blocked"});
+
+        assertOutput("Invalid task status: blocked%n");
+    }
+
+    @Test
+    void updateStatusUpdatesTaskWithCaseInsensitiveStatus() {
+        RecordingTaskService taskService = new RecordingTaskService();
+        parser.taskService = taskService;
+
+        parser.parse(new String[] {"update-status", "12", "In_Progress"});
+
+        assertEquals(12, taskService.updatedTaskId);
+        assertEquals(TaskStatus.IN_PROGRESS, taskService.updatedStatus);
+        assertOutput("Updating task 12 with status IN_PROGRESS%n");
+    }
+
     private void assertOutput(String expected) {
         assertEquals(String.format(expected), outputStream.toString(StandardCharsets.UTF_8));
+    }
+
+    private static final class RecordingTaskService extends TaskService {
+        private int updatedTaskId;
+        private TaskStatus updatedStatus;
+
+        @Override
+        public Task updateStatus(int id, TaskStatus status) {
+            updatedTaskId = id;
+            updatedStatus = status;
+            return null;
+        }
     }
 }

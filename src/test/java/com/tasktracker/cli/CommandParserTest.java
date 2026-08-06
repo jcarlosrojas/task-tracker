@@ -115,6 +115,13 @@ class CommandParserTest {
     }
 
     @Test
+    void updatePrintsUsageWhenDescriptionIsEmpty() {
+        parser.parse(new String[] {"update", "1", ""});
+
+        assertOutput("Usage: update <id> \"new description\"%n");
+    }
+
+    @Test
     void updatePrintsInvalidTaskIdWhenIdIsNotANumber() {
         parser.parse(new String[] {"update", "abc", "New description"});
         assertOutput("Invalid task id: abc%n");

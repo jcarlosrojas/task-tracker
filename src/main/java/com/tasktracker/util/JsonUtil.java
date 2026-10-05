@@ -3,8 +3,8 @@ package com.tasktracker.util;
 import com.tasktracker.exceptions.JsonUtilException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Objects;
@@ -13,7 +13,7 @@ public final class JsonUtil {
 
     private static final JsonMapper MAPPER = JsonMapper.builder()
             .findAndAddModules()
-            .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+            .enable(SerializationFeature.INDENT_OUTPUT)
             .build();
 
     private JsonUtil() {
@@ -47,10 +47,7 @@ public final class JsonUtil {
         }
     }
 
-    public static <T> T read(
-            String json,
-            TypeReference<T> typeReference
-    ) {
+    public static <T> T read(String json, TypeReference<T> typeReference) {
         validateJson(json);
         Objects.requireNonNull(typeReference, "typeReference cannot be null");
 

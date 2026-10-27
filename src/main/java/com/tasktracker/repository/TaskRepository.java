@@ -6,6 +6,7 @@ import com.tasktracker.util.JsonUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TaskRepository {
@@ -16,7 +17,7 @@ public class TaskRepository {
      * Default constructor: uses the default "tasks.json" file in the working directory.
      */
     public TaskRepository() {
-        this(Path.of("task.json"));
+        this(Path.of("tasks.json"));
     }
 
     /**
@@ -40,13 +41,13 @@ public class TaskRepository {
     public List<Task> findAll() {
         try {
             if(Files.notExists(filePath)) {
-                return List.of();
+                return new ArrayList<>();
             }
 
             String json = Files.readString(filePath);
 
             if(json.isBlank()) {
-                return List.of();
+                return new ArrayList<>();
             }
 
             return JsonUtil.read(json);

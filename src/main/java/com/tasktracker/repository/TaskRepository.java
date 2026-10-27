@@ -6,7 +6,6 @@ import com.tasktracker.util.JsonUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 
 public class TaskRepository {
@@ -50,7 +49,7 @@ public class TaskRepository {
                 return List.of();
             }
 
-            return Arrays.asList(JsonUtil.read(json, Task[].class));
+            return JsonUtil.read(json);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
